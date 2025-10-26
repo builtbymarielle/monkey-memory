@@ -1,0 +1,54 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: $site-white;
+}
+html {
+  scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-bottom: 16px;
+}
+
+// FONTS USED FOR THE SITE
+@font-face {
+  font-family: InterLight;
+  src: url(../css/fonts/Inter_Light.ttf);
+}
+@font-face {
+  font-family: InterRegular;
+  src: url(../css/fonts/Inter_Regular.ttf);
+}
+
+@font-face {
+  font-family: SoraLight;
+  src: url(../css/fonts/Sora_Light.ttf);
+}
+
+@font-face {
+  font-family: SoraRegular;
+  src: url(../css/fonts/Sora_Regular.ttf);
+}
+
+@font-face {
+  font-family: SoraBold;
+  src: url(../css/fonts/Sora_Bold.ttf);
+}
+
+@font-face {
+  font-family: SoraSemiBold;
+  src: url(../css/fonts/Sora_SemiBold.ttf);
+}

@@ -1,0 +1,20 @@
+.banana-bg {
+  background-image: url("../../public/images/banana-bg.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  padding-top: 100px;
+}
+
+// You can add custom styling here for the banana background
+// For example, you might want to add:
+.banana-bg .card {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+// Customize the login card styling
+.banana-bg .container {
+  padding: 2rem 0;
+}
