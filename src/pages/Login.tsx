@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login, register } = useAuth();
   const navigate = useNavigate();
@@ -65,15 +66,24 @@ const Login = () => {
 
                 <Form.Group className="mb-3">
                   <Form.Label className="text-white">Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                    placeholder="Enter password"
-                    className="custom-input"
-                  />
+                  <InputGroup>
+                    <Form.Control
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      placeholder="Enter password"
+                      className="custom-input"
+                    />
+                    <Button
+                      variant="yellow"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={0}
+                    >
+                       <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                    </Button>
+                  </InputGroup>
                 </Form.Group>
 
                 <div className="d-grid gap-2">

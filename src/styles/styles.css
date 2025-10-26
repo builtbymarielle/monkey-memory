@@ -99,6 +99,29 @@ p {
   color: #e0e0e0 !important;
 }
 
+.btn-yellow {
+  background-color: #FFD700 !important;
+  color: #ffffff !important;
+}
+.btn-yellow:hover {
+  background-color: #ffc800 !important;
+  color: #ffffff !important;
+}
+.btn-yellow:focus {
+  background-color: #FFD700 !important;
+  color: #ffffff !important;
+}
+.btn-yellow:focus-visible {
+  outline: none;
+  -webkit-box-shadow: 0 0 10px 0 #FFD700;
+          box-shadow: 0 0 10px 0 #FFD700;
+  border: 1px solid #FFD700;
+}
+.btn-yellow:disabled {
+  background-color: rgba(255, 230, 0, 0.12) !important;
+  color: #ffffff !important;
+}
+
 .banana-bg {
   background-image: url("../../public/images/banana-bg.jpg");
   background-position: center;

@@ -41,6 +41,10 @@ var Login = function Login() {
     _useState0 = _slicedToArray(_useState9, 2),
     error = _useState0[0],
     setError = _useState0[1];
+  var _useState1 = (0, _react.useState)(false),
+    _useState10 = _slicedToArray(_useState1, 2),
+    showPassword = _useState10[0],
+    setShowPassword = _useState10[1];
   var _useAuth = (0, _AuthContext.useAuth)(),
     login = _useAuth.login,
     register = _useAuth.register;
@@ -131,8 +135,8 @@ var Login = function Login() {
     className: "mb-3"
   }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Form.Label, {
     className: "text-white"
-  }, "Password"), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Form.Control, {
-    type: "password",
+  }, "Password"), /*#__PURE__*/_react.default.createElement(_reactBootstrap.InputGroup, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Form.Control, {
+    type: showPassword ? "text" : "password",
     value: password,
     onChange: function onChange(e) {
       return setPassword(e.target.value);
@@ -141,7 +145,15 @@ var Login = function Login() {
     minLength: 6,
     placeholder: "Enter password",
     className: "custom-input"
-  })), /*#__PURE__*/_react.default.createElement("div", {
+  }), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Button, {
+    variant: "yellow",
+    onClick: function onClick() {
+      return setShowPassword(!showPassword);
+    },
+    tabIndex: 0
+  }, /*#__PURE__*/_react.default.createElement("i", {
+    className: showPassword ? "bi bi-eye-slash" : "bi bi-eye"
+  })))), /*#__PURE__*/_react.default.createElement("div", {
     className: "d-grid gap-2"
   }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Button, {
     type: "submit",

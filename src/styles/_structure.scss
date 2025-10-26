@@ -55,50 +55,70 @@ p {
 }
 
 .bg-yellow {
-    background-color: $site-yellow !important;
+  background-color: $site-yellow !important;
 }
 .bg-yellow-light {
-    background-color: $site-yellow-light !important;
+  background-color: $site-yellow-light !important;
 }
 
 .bg-blue {
-    background-color: $site-blue !important;
+  background-color: $site-blue !important;
 }
 
 .box-shadow-1 {
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 }
 
 .btn-blue {
+  background-color: $site-blue !important;
+  color: $site-white !important;
+  &:hover {
+    background-color: $site-blue-dark !important;
+    color: $site-white !important;
+  }
+  &:focus {
     background-color: $site-blue !important;
     color: $site-white !important;
-    &:hover {
-        background-color: $site-blue-dark !important;
-        color: $site-white !important;
-    }
-    &:focus {
-        background-color: $site-blue !important;
-        color: $site-white !important;
-    }
-    &:focus-visible {
-        outline: none;
-        box-shadow: 0 0 10px 0 $site-blue;
-        border: 1px solid $site-blue;
-    }
-    &:disabled {
-        background-color: $site-blue-light !important;
-        color: $site-white !important;
-    }
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 10px 0 $site-blue;
+    border: 1px solid $site-blue;
+  }
+  &:disabled {
+    background-color: $site-blue-light !important;
+    color: $site-white !important;
+  }
 }
 
 .btn-link-white-underline {
-    background-color: transparent !important;
-    color: $site-white !important;
-    text-decoration: underline;
-    border: none !important;
-    &:hover{
-        color: $site-white-dark !important;
-    }
+  background-color: transparent !important;
+  color: $site-white !important;
+  text-decoration: underline;
+  border: none !important;
+  &:hover {
+    color: $site-white-dark !important;
+  }
 }
 
-
+.btn-yellow {
+  background-color: $site-yellow !important;
+  color: $site-white !important;
+  &:hover {
+    background-color: $site-yellow-dark !important;
+    color: $site-white !important;
+  }
+  &:focus {
+    background-color: $site-yellow !important;
+    color: $site-white !important;
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 10px 0 $site-yellow;
+    border: 1px solid $site-yellow;
+  }
+  &:disabled {
+    background-color: $site-yellow-light !important;
+    color: $site-white !important;
+  }
+}
