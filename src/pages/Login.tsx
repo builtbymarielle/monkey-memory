@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,7 +7,6 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +15,10 @@ const Login = () => {
 
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Determine if we're in login or register mode based on URL
+  const isLogin = location.pathname === '/login';
 
   // Helper function to format Firebase error messages into user-friendly messages
   const getErrorMessage = (error: any): string => {
@@ -84,8 +87,8 @@ const Login = () => {
     }
   };
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
+  // Reset form when switching between login and register
+  useEffect(() => {
     setError('');
     setEmail('');
     setPassword('');
@@ -95,6 +98,15 @@ const Login = () => {
     // Reset form validation states
     if (formRef.current) {
       formRef.current.reset();
+    }
+  }, [location.pathname]);
+
+  const toggleMode = () => {
+    // Navigate to the opposite route
+    if (isLogin) {
+      navigate('/register');
+    } else {
+      navigate('/login');
     }
   };
 
@@ -191,14 +203,45 @@ const Login = () => {
                     {isLogin ? 'Login' : 'Register'}
                   </Button>
 
-                  <Button
+                  <p className='text-center mb-0 text-white'>
+                    { isLogin ? (
+                      <>
+                      Don't have an account? {' '}
+                      <Button
+                        type="button"
+                        variant="link-white-underline"
+                        onClick={toggleMode}
+                        disabled={loading}
+                        className="p-0 align-baseline"
+                      >
+                        Register Here
+                      </Button>
+                      </>
+                    ): (
+                      <>
+                      Have an account? {' '}
+                      <Button
+                        type="button"
+                        variant="link-white-underline"
+                        onClick={toggleMode}
+                        disabled={loading}
+                        className="p-0 align-baseline"
+
+                      >
+                        Log in Here
+                      </Button>
+                      </>
+                    )}
+                  </p>
+
+                  {/* <Button
                     type="button"
                     variant="link-white-underline"
                     onClick={toggleMode}
                     disabled={loading}
                   >
                     {isLogin ? "Don't have an account? Register Here" : 'Have an account? Log in Here'}
-                  </Button>
+                  </Button> */}
                 </div>
 
                 {error && (
