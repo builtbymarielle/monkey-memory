@@ -43,8 +43,27 @@ const Navbar: React.FC = () => {
           <Nav className="me-auto">
             {currentUser && (
               <>
-                <Nav.Link as={Link} to="/">Home</Nav.Link>
-                <Nav.Link as={Link} to="/tests">Test</Nav.Link>
+                <Nav.Link 
+                  as={Link} 
+                  to="/"
+                  className={location.pathname === '/' ? 'active' : ''}
+                >
+                  Home
+                </Nav.Link>
+                <Nav.Link 
+                  as={Link} 
+                  to="/tests"
+                  className={location.pathname === '/test' ? 'active': ''}
+                >
+                  Test
+                </Nav.Link>
+                <Nav.Link 
+                  as={Link} 
+                  to="/items"
+                  className={location.pathname === '/items' ? 'active': ''}
+                >
+                  Items
+                </Nav.Link>
               </>
             )}
           </Nav>

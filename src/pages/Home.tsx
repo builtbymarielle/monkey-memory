@@ -4,11 +4,16 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 
 const Home: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
+
+  // Show nothing while checking auth state to prevent flash
+  if (authLoading) {
+    return null;
+  }
 
   // redirect to /login if user is not signed in
-  if(!currentUser){
-    return(<Navigate to="/login" replace />)
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
   }
 
   return (
@@ -22,15 +27,9 @@ const Home: React.FC = () => {
             </p>
             
             <div className="mt-4">
-              {currentUser ? (
-                <Link to="/test" className="btn btn-success btn-lg">
-                  Start Test
-                </Link>
-              ) : (
-                <Link to="/login" className="btn btn-primary btn-lg">
-                  Sign Up to Get Started
-                </Link>
-              )}
+              <Link to="/tests" className="btn btn-success btn-lg">
+                Start Test
+              </Link>
             </div>
           </div>
         </Col>

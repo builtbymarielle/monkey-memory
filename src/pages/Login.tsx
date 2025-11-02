@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
+  // All hooks must be called before any conditional returns
+  const { currentUser, login, register, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,13 +16,23 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-
-  const { login, register } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
   
   // Determine if we're in login or register mode based on URL
   const isLogin = location.pathname === '/login';
+
+  // Reset form when switching between login and register
+  useEffect(() => {
+    setError('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    // Reset form validation states
+    if (formRef.current) {
+      formRef.current.reset();
+    }
+  }, [location.pathname]);
 
   // Helper function to format Firebase error messages into user-friendly messages
   const getErrorMessage = (error: any): string => {
@@ -87,20 +101,6 @@ const Login = () => {
     }
   };
 
-  // Reset form when switching between login and register
-  useEffect(() => {
-    setError('');
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setShowPassword(false);
-    setShowConfirmPassword(false);
-    // Reset form validation states
-    if (formRef.current) {
-      formRef.current.reset();
-    }
-  }, [location.pathname]);
-
   const toggleMode = () => {
     // Navigate to the opposite route
     if (isLogin) {
@@ -109,6 +109,16 @@ const Login = () => {
       navigate('/login');
     }
   };
+
+  // Show nothing while checking auth state to prevent flash
+  if (authLoading) {
+    return null;
+  }
+
+  // Redirect logged-in users away from login/register pages
+  if (currentUser) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="banana-bg">
