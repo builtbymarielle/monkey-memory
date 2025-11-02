@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,13 +6,48 @@ import { useAuth } from '../contexts/AuthContext';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { login, register } = useAuth();
   const navigate = useNavigate();
+
+  // Helper function to format Firebase error messages into user-friendly messages
+  const getErrorMessage = (error: any): string => {
+    const errorCode = error?.code || '';
+    const errorMessage = error?.message || '';
+
+    switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return 'This email is already registered. Please use a different email or try logging in.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/operation-not-allowed':
+        return 'Email/password accounts are not enabled. Please contact support.';
+      case 'auth/weak-password':
+        return 'Password is too weak. Please use at least 6 characters.';
+      case 'auth/user-disabled':
+        return 'This account has been disabled. Please contact support.';
+      case 'auth/user-not-found':
+        return 'No account found with this email address.';
+      case 'auth/wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'auth/invalid-credential':
+        return 'Invalid email or password. Please check your credentials and try again.';
+      case 'auth/too-many-requests':
+        return 'Too many failed attempts. Please try again later.';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your internet connection and try again.';
+      default:
+        // Return original message if we don't have a custom one
+        return errorMessage || 'An error occurred. Please try again.';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +55,20 @@ const Login = () => {
 
     setLoading(true);
     setError('');
+
+    // Validate passwords match when registering
+    if (!isLogin) {
+      if (password !== confirmPassword) {
+        setError('Passwords do not match. Please try again.');
+        setLoading(false);
+        return;
+      }
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters long.');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (isLogin) {
@@ -29,7 +78,7 @@ const Login = () => {
       }
       navigate('/items');
     } catch (error: any) {
-      setError(error.message || 'An error occurred');
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -38,6 +87,15 @@ const Login = () => {
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setError('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    // Reset form validation states
+    if (formRef.current) {
+      formRef.current.reset();
+    }
   };
 
   return (
@@ -51,7 +109,7 @@ const Login = () => {
               </h3>
             </Card.Header>
             <Card.Body className="bg-yellow-light rounded-bottom">
-              <Form onSubmit={handleSubmit}>
+              <Form ref={formRef} onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                   <Form.Label className="text-white">Email</Form.Label>
                   <Form.Control
@@ -86,6 +144,40 @@ const Login = () => {
                   </InputGroup>
                 </Form.Group>
 
+                {!isLogin && (
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-white">Confirm Password</Form.Label>
+                    <InputGroup>
+                      <Form.Control
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        placeholder="Confirm password"
+                        className="custom-input"
+                      />
+                      <Button
+                        variant="yellow"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        tabIndex={0}
+                      >
+                         <i className={showConfirmPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                      </Button>
+                    </InputGroup>
+                    {confirmPassword && password !== confirmPassword && (
+                      <Form.Text className="text-danger">
+                        Passwords do not match
+                      </Form.Text>
+                    )}
+                    {confirmPassword && password === confirmPassword && password.length >= 6 && (
+                      <Form.Text className="text-success">
+                        ✓ Passwords match
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+                )}
+
                 <div className="d-grid gap-2">
                   <Button
                     type="submit"
@@ -105,7 +197,7 @@ const Login = () => {
                     onClick={toggleMode}
                     disabled={loading}
                   >
-                    {isLogin ? "Don't have an account? Register Here" : 'Log in Here'}
+                    {isLogin ? "Don't have an account? Register Here" : 'Have an account? Log in Here'}
                   </Button>
                 </div>
 

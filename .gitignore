@@ -133,4 +133,9 @@ jspm_packages/
 # TernJS port file
 .tern-port
 
+# Prepros compiled TypeScript files (should not exist - React Scripts handles TS)
+src/**/*.js
+!src/**/index.js
+!src/serviceWorker.js
+
 
