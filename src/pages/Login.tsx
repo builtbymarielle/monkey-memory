@@ -120,6 +120,11 @@ const Login = () => {
     return <Navigate to="/" replace />;
   }
 
+  // If user forgot password navigate to reset password page
+  const resetPassword = () => {
+    navigate('/reset-password')
+  }
+
   return (
     <div className="banana-bg">
       <Row className="justify-content-center">
@@ -213,7 +218,7 @@ const Login = () => {
                     {isLogin ? 'Login' : 'Register'}
                   </Button>
 
-                  <p className='text-center mb-0 text-white'>
+                  <p className='text-center mb-2 text-white'>
                     { isLogin ? (
                       <>
                       Don't have an account? {' '}
@@ -244,14 +249,19 @@ const Login = () => {
                     )}
                   </p>
 
-                  {/* <Button
+                  {isLogin && (
+                    <>
+                    <p className='text-center mb-0 text-white'>
+                    <Button
                     type="button"
                     variant="link-white-underline"
-                    onClick={toggleMode}
-                    disabled={loading}
-                  >
-                    {isLogin ? "Don't have an account? Register Here" : 'Have an account? Log in Here'}
-                  </Button> */}
+                    onClick={resetPassword}
+                    className="p-0 align-baseline">
+                      Forgot Password?
+                    </Button>
+                  </p>
+                    </>
+                   )}
                 </div>
 
                 {error && (
