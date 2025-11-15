@@ -12,6 +12,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [debouncedError, setDebouncedError] = useState("");
+
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -28,11 +31,26 @@ const Login = () => {
     setConfirmPassword('');
     setShowPassword(false);
     setShowConfirmPassword(false);
+
     // Reset form validation states
     if (formRef.current) {
       formRef.current.reset();
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+      setDebouncedError("");
+
+      const timer = setTimeout(() => {
+          if (confirmPassword && password !== confirmPassword){
+              setDebouncedError("nomatch");
+          } else if ( confirmPassword && password === confirmPassword && password.length >= 6){
+              setDebouncedError("match");
+          }
+      }, 500);
+
+      return () => clearTimeout(timer);
+  }, [confirmPassword, password])
 
   // Helper function to format Firebase error messages into user-friendly messages
   const getErrorMessage = (error: any): string => {
@@ -136,6 +154,11 @@ const Login = () => {
               </h3>
             </Card.Header>
             <Card.Body className="bg-yellow-light rounded-bottom">
+              {error && (
+                <Alert variant="danger" className="mt-3">
+                  {error}
+                </Alert>
+              )}
               <Form ref={formRef} onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                   <Form.Label className="text-white">Email</Form.Label>
@@ -174,7 +197,7 @@ const Login = () => {
                 {!isLogin && (
                   <Form.Group className="mb-3">
                     <Form.Label className="text-white">Confirm Password</Form.Label>
-                    <InputGroup>
+                    <InputGroup className='mb-2'>
                       <Form.Control
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
@@ -192,14 +215,14 @@ const Login = () => {
                          <i className={showConfirmPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
                       </Button>
                     </InputGroup>
-                    {confirmPassword && password !== confirmPassword && (
+                    {debouncedError === "nomatch" && (
                       <Form.Text className="text-danger">
-                        Passwords do not match
+                        <i className="bi bi-x"></i> Passwords do not match
                       </Form.Text>
                     )}
-                    {confirmPassword && password === confirmPassword && password.length >= 6 && (
+                    {debouncedError === "match" && (
                       <Form.Text className="text-success">
-                        ✓ Passwords match
+                         <i className="bi bi-check"></i> Passwords match
                       </Form.Text>
                     )}
                   </Form.Group>
@@ -263,12 +286,6 @@ const Login = () => {
                     </>
                    )}
                 </div>
-
-                {error && (
-                  <Alert variant="danger" className="mt-3">
-                    {error}
-                  </Alert>
-                )}
               </Form>
             </Card.Body>
           </Card>

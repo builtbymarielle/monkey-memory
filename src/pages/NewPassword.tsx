@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { useSearchParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
-
+import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { auth } from "../firebase/config"
 
 const NewPasswordPage = () => {
@@ -10,24 +10,155 @@ const NewPasswordPage = () => {
     const oobCode = params.get("oobCode") || "";
 
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleReset = async () => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const [debouncedError, setDebouncedError] = useState("");
+
+    useEffect(() => {
+        setDebouncedError("");
+
+        const timer = setTimeout(() => {
+            if (confirmPassword && password !== confirmPassword){
+                setDebouncedError("nomatch");
+            } else if ( confirmPassword && password === confirmPassword && password.length >= 6){
+                setDebouncedError("match");
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [confirmPassword, password])
+
+    const handleReset = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setMessage("");
+        setError("");
+        setLoading(true);
+
+
+        if (password !== confirmPassword){
+            setLoading(false);
+            setError("Passwords do not match. Please try again.");
+            return;
+        }
         try{
+            setLoading(true);
             await verifyPasswordResetCode(auth, oobCode);
             await confirmPasswordReset(auth, oobCode, password);
             setMessage("Password has been reset! You can now log in.")
-        } catch(err){
-            setMessage("Reset link invalid or expired.");
+        } catch(err: any){
+            if (err.code === "auth/invalid-action-code"){
+                setError("Reset link invalid or expired.")
+            }
+            else{
+                setError("Failed to reset password. Please try again.");
+            }
         }
+
+        setLoading(false);
     };
 
     return(
-        <div>
-            <h1>Set Your New Password</h1>
-            <input type="password" onChange={(e) => setPassword(e.target.value)} />
-            <button onClick={handleReset}>Update Password</button>
-            {message}
+        <div className='banana-bg'>
+            <Row className="justify-content-center">
+                <Col md={6}>
+                    <Card className="border-0 shadow-lg">
+                        <Card.Header className="bg-yellow text-white">
+                            <h3 className='text-center mb-0'>
+                                New Password
+                            </h3>
+                        </Card.Header>
+                        <Card.Body className='bg-yellow-light rounded-bottom'>
+                            {message && (
+                                <Alert variant='success' className='mt-3'>
+                                    {message}
+                                </Alert>
+                            )}
+
+                            {error && (
+                                <Alert variant='danger' className='mt-3'>
+                                    {error}
+                                </Alert>
+                            )}
+                            <Form onSubmit={handleReset}>
+                                <Form.Group className='mb-3'>
+                                    <Form.Label className="text-white">Enter in new password</Form.Label>
+                                    <InputGroup>
+                                        <Form.Control
+                                            type={showPassword ? "text" : "password"}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                            placeholder="Enter password"
+                                            className="custom-input"
+                                        />
+                                        <Button
+                                            variant="yellow"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            tabIndex={0}
+                                        >
+                                            <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                                        </Button>
+                                    </InputGroup>
+                                </Form.Group>
+
+                                <Form.Group className='mb-3'>
+                                    <Form.Label className="text-white">Confirm new password</Form.Label>
+                                    <InputGroup className='mb-2'>
+                                        <Form.Control
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                            placeholder="Confirm password"
+                                            className="custom-input"
+                                        />
+                                        <Button
+                                            variant="yellow"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            tabIndex={0}
+                                        >
+                                            <i className={showConfirmPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                                        </Button>
+                                    </InputGroup>
+                                   {debouncedError === "nomatch" && (
+                                        <Form.Text className="text-danger">
+                                            <i className="bi bi-x"></i> Passwords do not match
+                                        </Form.Text>
+                                    )}
+                                    {debouncedError === "match" && (
+                                        <Form.Text className="text-success">
+                                            <i className="bi bi-check"></i> Passwords match
+                                        </Form.Text>
+                                    )}
+                                </Form.Group>
+
+                                <div className='d-grid gap-2'>
+                                    <Button
+                                        type="submit"
+                                        variant="blue"
+                                        disabled={loading}
+                                        size="lg"
+                                    >
+                                        {loading && (
+                                            <span className='spinner-border spinner-border-sm me-2' />
+                                        )}
+                                        Reset Password
+                                    </Button>
+                                </div>
+
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                </Col>
+
+            </Row>
         </div>
     )
 
