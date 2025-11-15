@@ -1,0 +1,226 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
+import { useAuth } from '../contexts/AuthContext';
+
+const Register = () => {
+const { currentUser, register, loading: authLoading } = useAuth();
+const navigate = useNavigate();
+
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
+const [confirmPassword, setConfirmPassword] = useState('');
+
+const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+const [debouncedError, setDebouncedError] = useState("");
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState('');
+
+const formRef = useRef<HTMLFormElement>(null);
+
+useEffect(() => {
+    formRef.current?.reset();
+}, []);
+
+// Debounce password match
+useEffect(() => {
+    setDebouncedError("");
+    const timer = setTimeout(() => {
+        if (confirmPassword && password !== confirmPassword){
+            setDebouncedError("nomatch");
+        } else if ( confirmPassword && password === confirmPassword && password.length >= 6){
+            setDebouncedError("match");
+        }
+    }, 500);
+
+    return () => clearTimeout(timer);
+}, [confirmPassword, password]);
+
+// Helper function to format Firebase error messages into user-friendly messages
+const getErrorMessage = (error: any): string => {
+    const errorCode = error?.code || '';
+    const errorMessage = error?.message || '';
+
+    switch (errorCode) {
+        case 'auth/email-already-in-use':
+        return 'This email is already registered. Please use a different email or try logging in.';
+        case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+        case 'auth/operation-not-allowed':
+        return 'Email/password accounts are not enabled. Please contact support.';
+        case 'auth/weak-password':
+        return 'Password is too weak. Please use at least 6 characters.';
+        case 'auth/user-disabled':
+        return 'This account has been disabled. Please contact support.';
+        case 'auth/user-not-found':
+        return 'No account found with this email address.';
+        case 'auth/wrong-password':
+        return 'Incorrect password. Please try again.';
+        case 'auth/invalid-credential':
+        return 'Invalid email or password. Please check your credentials and try again.';
+        case 'auth/too-many-requests':
+        return 'Too many failed attempts. Please try again later.';
+        case 'auth/network-request-failed':
+        return 'Network error. Please check your internet connection and try again.';
+        default:
+        // Return original message if we don't have a custom one
+        return errorMessage || 'An error occurred. Please try again.';
+    }
+};
+
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
+    setError('');
+
+    if (password !== confirmPassword) {
+        setError('Passwords do not match. Please try again.');
+        setLoading(false);
+        return;
+    }
+    if (password.length < 6) {
+        setError('Password must be at least 6 characters long.');
+        setLoading(false);
+        return;
+    }
+
+    try {
+        await register(email, password);
+        navigate('/items');
+    } catch (error: any) {
+        setError(getErrorMessage(error));
+    } finally {
+        setLoading(false);
+    }
+};
+
+// Show nothing while checking auth state to prevent flash
+if (authLoading) return null;
+// Redirect logged-in users away from login/register pages
+if (currentUser) return <Navigate to="/" replace />;
+
+// If user forgot password navigate to reset password page
+const loginUser = () => {
+navigate('/login')
+}
+
+return (
+<div className="banana-bg">
+    <Row className="justify-content-center">
+    <Col md={6}>
+        <Card className="border-0 shadow-lg">
+        <Card.Header className="bg-yellow text-white">
+            <h3 className="text-center mb-0">Register</h3>
+        </Card.Header>
+        <Card.Body className="bg-yellow-light rounded-bottom">
+            {error && (
+            <Alert variant="danger" className="mt-3">
+                {error}
+            </Alert>
+            )}
+            <Form ref={formRef} onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+                <Form.Label className="text-white">Email</Form.Label>
+                <Form.Control
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter email"
+                className="custom-input"
+                />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+                <Form.Label className="text-white">Password</Form.Label>
+                <InputGroup>
+                <Form.Control
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    placeholder="Enter password"
+                    className="custom-input"
+                />
+                <Button
+                    variant="yellow"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={0}
+                >
+                    <i className={showPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                </Button>
+                </InputGroup>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+                <Form.Label className="text-white">Confirm Password</Form.Label>
+                <InputGroup className='mb-2'>
+                    <Form.Control
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    placeholder="Confirm password"
+                    className="custom-input"
+                    />
+                    <Button
+                    variant="yellow"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    tabIndex={0}
+                    >
+                        <i className={showConfirmPassword ? "bi bi-eye-slash" : "bi bi-eye"}></i>
+                    </Button>
+                </InputGroup>
+                {debouncedError === "nomatch" && (
+                    <Form.Text className="text-danger">
+                    <i className="bi bi-x"></i> Passwords do not match
+                    </Form.Text>
+                )}
+                {debouncedError === "match" && (
+                    <Form.Text className="text-success">
+                        <i className="bi bi-check"></i> Passwords match
+                    </Form.Text>
+                )}
+            </Form.Group>
+
+            <div className="d-grid gap-2">
+                <Button
+                type="submit"
+                variant="blue"
+                disabled={loading}
+                size="lg"
+                >
+                {loading && (
+                    <span className="spinner-border spinner-border-sm me-2" />
+                )}
+                Register
+                </Button>
+
+                <p className='text-center mb-2 text-white'>
+                    Have an account? {' '}
+                    <Button
+                    type="button"
+                    variant="link-white-underline"
+                    onClick={loginUser}
+                    disabled={loading}
+                    className="p-0 align-baseline"
+                    >
+                    Log in Here
+                    </Button>
+                </p>
+            </div>
+            </Form>
+        </Card.Body>
+        </Card>
+    </Col>
+    </Row>
+</div>
+)};
+
+export default Register;
