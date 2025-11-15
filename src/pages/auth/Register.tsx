@@ -3,12 +3,14 @@
 * --------------
 * Creates a new user account using email and password.
 * Includes password confirmation and basic validation.
+* Adding Cooldown, so users can't spam registration form.
 */
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCooldown } from '../../hooks/useCooldown';
 
 const Register = () => {
 const { currentUser, register, loading: authLoading } = useAuth();
@@ -26,6 +28,8 @@ const [loading, setLoading] = useState(false);
 const [error, setError] = useState('');
 
 const formRef = useRef<HTMLFormElement>(null);
+
+const { cooldown, startCooldown } = useCooldown(30);
 
 useEffect(() => {
     formRef.current?.reset();
@@ -97,6 +101,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     try {
         await register(email, password);
+        startCooldown();
         navigate('/items');
     } catch (error: any) {
         setError(getErrorMessage(error));
@@ -200,13 +205,13 @@ return (
                 <Button
                 type="submit"
                 variant="blue"
-                disabled={loading}
+                disabled={loading || cooldown > 0}
                 size="lg"
                 >
                 {loading && (
                     <span className="spinner-border spinner-border-sm me-2" />
                 )}
-                Register
+                {cooldown > 0 ? `Please wait ${cooldown}s` : 'Register'}
                 </Button>
 
                 <p className='text-center mb-2 text-white'>
