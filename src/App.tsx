@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import Stats from './pages/Stats';
-import ResetPassword from './pages/ResetPassword';
-import NewPasswordPage from './pages/NewPassword';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/styles.scss';
@@ -24,8 +24,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/reset-password" element={<ResetPassword/>} />
-              <Route path="/new-password" element={<NewPasswordPage />} />
+              <Route path="/reset-password" element={<ForgotPassword/>} />
+              <Route path="/new-password" element={<ResetPassword />} />
               <Route 
                 path="/stats" 
                 element={

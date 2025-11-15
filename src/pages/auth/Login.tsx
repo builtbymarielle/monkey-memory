@@ -1,7 +1,13 @@
+/**
+* Login Page
+* -----------
+* Allows users to sign in using their email and password.
+*/
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const { currentUser, login, loading: authLoading } = useAuth();

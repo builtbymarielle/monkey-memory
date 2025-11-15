@@ -1,7 +1,14 @@
+/**
+* Register Page
+* --------------
+* Creates a new user account using email and password.
+* Includes password confirmation and basic validation.
+*/
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Register = () => {
 const { currentUser, register, loading: authLoading } = useAuth();
@@ -105,7 +112,7 @@ if (currentUser) return <Navigate to="/" replace />;
 
 // If user forgot password navigate to reset password page
 const loginUser = () => {
-navigate('/login')
+    navigate('/login')
 }
 
 return (

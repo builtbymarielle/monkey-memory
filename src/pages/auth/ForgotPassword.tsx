@@ -1,13 +1,18 @@
+/**
+* Forgot Password Page
+* ---------------------
+* Allows the user to request a password reset email.
+* User enters their email, and Firebase sends a reset link.
+*/
 
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { useAuth } from '../../contexts/AuthContext';
 
 
-const ResetPassword = () => {
+const ForgotPassword = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const { resetPassword } = useAuth();
     const [ email, setEmail ] = useState('');
     const [message, setMessage] = useState('');
@@ -103,4 +108,4 @@ const ResetPassword = () => {
     );
 }
 
-export default ResetPassword;
+export default ForgotPassword;

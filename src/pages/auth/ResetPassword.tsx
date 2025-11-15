@@ -1,11 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+/**
+* Reset Password Page
+* --------------------
+* User arrives here *from the reset email link*.
+* Allows them to enter and confirm a new password.
+* Updates the password directly via Firebase.
+*/
+
+import React, { useState, useEffect } from 'react';
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { useSearchParams } from "react-router-dom";
-import { getAuth } from "firebase/auth";
-import { Container, Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
-import { auth } from "../firebase/config"
+import { Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
+import { auth } from "../../firebase/config"
 
-const NewPasswordPage = () => {
+const ResetPassword = () => {
     const [params] = useSearchParams();
     const oobCode = params.get("oobCode") || "";
 
@@ -21,6 +28,21 @@ const NewPasswordPage = () => {
 
     const [debouncedError, setDebouncedError] = useState("");
 
+    const [userEmail, setUserEmail] = useState("");
+
+    // Getting User's email to display on page
+    useEffect(() => {
+        if(!oobCode){
+            setError("Invalid reset link.")
+            return;
+        }
+
+        verifyPasswordResetCode(auth, oobCode)
+            .then(email => setUserEmail(email))
+            .catch(()=> setError("Invalid or expired reset link."));
+    }, [oobCode])
+
+    // add a delay when confirming passwords
     useEffect(() => {
         setDebouncedError("");
 
@@ -75,6 +97,12 @@ const NewPasswordPage = () => {
                             </h3>
                         </Card.Header>
                         <Card.Body className='bg-yellow-light rounded-bottom'>
+                            {userEmail && (
+                                <Alert variant="info">
+                                    Resetting password for <b>{userEmail}</b>
+                                </Alert>
+                            )}
+
                             {message && (
                                 <Alert variant='success' className='mt-3'>
                                     {message}
@@ -165,4 +193,4 @@ const NewPasswordPage = () => {
     
 }
 
-export default NewPasswordPage
+export default ResetPassword
