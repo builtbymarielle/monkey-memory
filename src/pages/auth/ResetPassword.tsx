@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Row, Col, Card, Form, Button, Alert, InputGroup } from 'react-bootstrap';
 import { auth } from "../../firebase/config"
 
@@ -29,6 +29,7 @@ const ResetPassword = () => {
     const [debouncedError, setDebouncedError] = useState("");
 
     const [userEmail, setUserEmail] = useState("");
+    const [resetSuccess, setResetSuccess] = useState(false);
 
     // Getting User's email to display on page
     useEffect(() => {
@@ -61,6 +62,7 @@ const ResetPassword = () => {
         e.preventDefault();
         setMessage("");
         setError("");
+        setResetSuccess(false);
         setLoading(true);
 
 
@@ -74,6 +76,7 @@ const ResetPassword = () => {
             await verifyPasswordResetCode(auth, oobCode);
             await confirmPasswordReset(auth, oobCode, password);
             setMessage("Password has been reset! You can now log in.")
+            setResetSuccess(true);
         } catch(err: any){
             if (err.code === "auth/invalid-action-code"){
                 setError("Reset link invalid or expired.")
@@ -103,8 +106,17 @@ const ResetPassword = () => {
                                 </Alert>
                             )}
 
-                            {message && (
-                                <Alert variant='success' className='mt-3'>
+                            {resetSuccess && (
+                                <Alert variant="success" className="mt-3">
+                                    Password has been reset! You can now{" "}
+                                    <Link to="/login" className="text-decoration-underline fw-bold">
+                                    log in
+                                    </Link>.
+                                </Alert>
+                            )}
+
+                            {!resetSuccess && message && (
+                                <Alert variant="success" className="mt-3">
                                     {message}
                                 </Alert>
                             )}
