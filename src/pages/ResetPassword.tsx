@@ -24,8 +24,13 @@ const ResetPassword = () => {
             await resetPassword(email);
 
             setMessage("Password reset email sent! Check your inbox")
-        } catch(err:any){
-            setError('Failed to send reset email.')
+        } catch (err: any) {
+            if (err.code === 'auth/user-not-found') {
+                setError('No account found with that email address.');
+            } else {
+                console.error("Password Reset Error:", err);
+                setError('Failed to send reset email. Please try again.');
+            }
         }
 
         setLoading(false);

@@ -52,7 +52,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const resetPassword = async (email: string): Promise<void> => {
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email, {
+      url: process.env.REACT_APP_PASSWORD_RESET_REDIRECT || '',
+      handleCodeInApp: true
+    });
   };
 
   const value: AuthContextType = {
