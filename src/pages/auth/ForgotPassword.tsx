@@ -3,9 +3,10 @@
 * ---------------------
 * Allows the user to request a password reset email.
 * User enters their email, and Firebase sends a reset link.
+* Implements a 30-second cooldown to prevent spamming.
 */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,9 +19,23 @@ const ForgotPassword = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [cooldown, setCoolDown] = useState(0);
 
+    // Countdown timer
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const interval = setInterval(() => {
+            setCoolDown(prev => prev - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [cooldown]);
+
+
+    // Submitting reset form validation
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if(cooldown > 0 ) return;
 
         try{
             setMessage('');
@@ -28,11 +43,15 @@ const ForgotPassword = () => {
             setLoading(true);
             await resetPassword(email);
 
-            setMessage("Password reset email sent! Check your inbox")
+            setMessage("Password reset email sent! Check your inbox");
+            setCoolDown(30);
         } catch (err: any) {
             if (err.code === 'auth/user-not-found') {
                 setError('No account found with that email address.');
-            } else {
+            } else if (err.code === 'auth/too-many-requests'){
+                setError('Too many requests. Please try again later.');
+            }
+             else {
                 console.error("Password Reset Error:", err);
                 setError('Failed to send reset email. Please try again.');
             }
@@ -79,14 +98,14 @@ const ForgotPassword = () => {
                             <Button
                                 type="submit"
                                 variant="blue"
-                                disabled={loading}
+                                disabled={loading || cooldown > 0}
                                 className="w-100"
                                 size="lg"
                             >
                                 {loading && (
                                     <span className='spinner-border spinner-border-sm me-2' />
                                 )}
-                                Send Password Reset Email
+                                {cooldown > 0 ? `Please wait ${cooldown}s` : "Send Password Reset Email"}
                             </Button>
 
                             <p className="text-center mt-3 text-white">
